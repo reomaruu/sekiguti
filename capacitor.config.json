@@ -1,0 +1,9 @@
+{
+  "appId": "com.reomaruu.sekiguti",
+  "appName": "Sekiguti",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "always"
+  }
+}
