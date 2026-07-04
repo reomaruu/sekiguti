@@ -17,28 +17,53 @@ workflows:
     scripts:
       - name: Show tool versions
         script: |
+          set -e
           node --version
           npm --version
           pod --version
           xcodebuild -version
       - name: Install npm dependencies
         script: |
+          set -e
           npm install
-      - name: Generate Capacitor iOS project
+      - name: Generate and sync Capacitor iOS project
         script: |
+          set -e
+          rm -rf ios
           npx cap add ios
           npx cap sync ios
-      - name: Install CocoaPods dependencies
+          echo "Generated iOS files:"
+          find ios -maxdepth 3 -type f \( -name 'Podfile' -o -name '*.xcworkspace' -o -name '*.xcodeproj' \) -print
+      - name: Install CocoaPods dependencies when Podfile exists
         script: |
-          cd ios/App
-          pod install
+          set -e
+          PODFILE_PATH="$(find ios -maxdepth 4 -name Podfile -print -quit)"
+          if [ -n "$PODFILE_PATH" ]; then
+            POD_DIR="$(dirname "$PODFILE_PATH")"
+            echo "Found Podfile at $PODFILE_PATH"
+            cd "$POD_DIR"
+            pod install
+          else
+            echo "No Podfile found. Skipping pod install."
+          fi
       - name: Build unsigned .app for iOS Simulator
         script: |
+          set -e
           mkdir -p /tmp/xcodebuild_logs
+          WORKSPACE_PATH="$(find ios -maxdepth 4 -name 'App.xcworkspace' -print -quit)"
+          PROJECT_PATH="$(find ios -maxdepth 4 -name 'App.xcodeproj' -print -quit)"
+          if [ -n "$WORKSPACE_PATH" ]; then
+            BUILD_TARGET_ARGS="-workspace $WORKSPACE_PATH -scheme App"
+          elif [ -n "$PROJECT_PATH" ]; then
+            BUILD_TARGET_ARGS="-project $PROJECT_PATH -scheme App"
+          else
+            echo "No Xcode workspace or project found under ios/."
+            find ios -maxdepth 5 -print
+            exit 1
+          fi
           set -o pipefail
           xcodebuild build \
-            -workspace ios/App/App.xcworkspace \
-            -scheme App \
+            $BUILD_TARGET_ARGS \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
