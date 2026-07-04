@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Sekiguti</title>
+  <link rel="stylesheet" href="kibou.css" />
+</head>
+<body>
+  <main class="screen" aria-label="Sekiguti app screen">
+    <section class="card" id="main-card">
+      <h1>Hello Transparent!</h1>
+      <p>Unityより簡単でしょ？</p>
+      <button id="close-button" type="button">カードを閉じる</button>
+    </section>
+
+    <p class="closed-message" id="closed-message" hidden>
+      カードを非表示にしました。
+    </p>
+  </main>
+
+  <script>
+    const closeButton = document.getElementById('close-button');
+    const mainCard = document.getElementById('main-card');
+    const closedMessage = document.getElementById('closed-message');
+
+    closeButton.addEventListener('click', () => {
+      mainCard.hidden = true;
+      closedMessage.hidden = false;
+    });
+  </script>
+</body>
+</html>
