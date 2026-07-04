@@ -6,7 +6,6 @@ workflows:
     environment:
       xcode: latest
       node: lts
-      npm: default
       cocoapods: default
     triggering:
       events:
@@ -16,6 +15,12 @@ workflows:
           include: true
           source: true
     scripts:
+      - name: Show tool versions
+        script: |
+          node --version
+          npm --version
+          pod --version
+          xcodebuild -version
       - name: Install npm dependencies
         script: |
           npm install
